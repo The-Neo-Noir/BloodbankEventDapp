@@ -1,42 +1,96 @@
 <!doctype>
 <html>
-<head><script src="deployment.js"></script>
-<script type="text/javascript" src="web3.js"></script>
-<script type='text/javascript'>
-
-var Web3 = require('web3');
-    var web3 = new Web3();
-    web3.setProvider(new web3.providers.HttpProvider("http://localhost:8545"));
-
-	web3.eth.defaultAccount = web3.eth.accounts[0];
-	var bloodbankContract = web3.eth.contract([{"constant":false,"inputs":[{"name":"amount","type":"uint256"}],"name":"addBlood","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"userName","type":"string"},{"name":"amount","type":"uint256"}],"name":"addBloodByUser","outputs":[],"type":"function"},{"constant":true,"inputs":[],"name":"queryBloodRemaining","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"inputs":[],"type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"time","type":"uint256"},{"indexed":true,"name":"donorName","type":"string"},{"indexed":false,"name":"amount","type":"uint256"}],"name":"BloodDonated","type":"event"}]).at('0x89c144aaf07dc9cbc579022e3e366e5cb3218443');
-function get() {
-	var param = document.getElementById('query').value;
-	var res = bloodbankContract.queryBloodRemaining();
-	document.getElementById('queryres').innerText = res;
-}
-
-function set() {
-	var key = document.getElementById('key').value;
-	var name = document.getElementById('name').value;
-	var res = bloodbankContract.addBloodByUser(name,key);
-}
-
-</script>
-</head>
-<body bgcolor='#E6E6FA'>
-	<h3>Sample Ratings</h3>
-<div>
-Store:<br/>
-	Amount in lts:<input type='number' id='key'><br/>
-	
-	Name :<input type='name' id='name'>
-	<button onclick='set()'>Save</button>
-</div>
-<div>
-Query:
-	<input value='get' type='button' id='query' onclick='get()' />
-	<div id='queryres'></div>
-</div>
-</body>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+      <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+      <style>
+         .tab-pane {
+         border-left: 1px solid #ddd;
+         border-right: 1px solid #ddd;
+         border-bottom: 1px solid #ddd;
+         border-radius: 0px 0px 5px 5px;
+         padding: 10px;
+         margin: 0 auto;
+         height:300px;
+         }
+         .nav-tabs {
+         margin-bottom: 0;
+         }
+      </style>
+      <script type="text/javascript" src="web3.js"></script>
+      <script type='text/javascript'>
+         var Web3 = require('web3');
+             var web3 = new Web3();
+             web3.setProvider(new web3.providers.HttpProvider("http://localhost:8545"));
+         
+         	web3.eth.defaultAccount = web3.eth.accounts[0];
+         	var bloodbankContract = web3.eth.contract([{"constant":false,"inputs":[{"name":"amount","type":"uint256"}],"name":"addBlood","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"userName","type":"string"},{"name":"amount","type":"uint256"}],"name":"addBloodByUser","outputs":[],"type":"function"},{"constant":true,"inputs":[],"name":"queryBloodRemaining","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"inputs":[],"type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"time","type":"uint256"},{"indexed":true,"name":"donorName","type":"string"},{"indexed":false,"name":"amount","type":"uint256"}],"name":"BloodDonated","type":"event"}]).at('0x89c144aaf07dc9cbc579022e3e366e5cb3218443');
+         function get() {
+         	var param = document.getElementById('query').value;
+         	var res = bloodbankContract.queryBloodRemaining();
+         	document.getElementById('queryres').innerText = res;
+         }
+         
+         function set() {
+         	var key = document.getElementById('key').value;
+         	var name = document.getElementById('name').value;
+         	var res = bloodbankContract.addBloodByUser(name,key);
+         }
+         
+      </script>
+   </head>
+   <body bgcolor='#E6E6FA'>
+      <div class="container">
+         <ul class="nav nav-tabs">
+            <li class="active"><a href="#dblood">Donate Blood </a></li>
+            <li><a href="#qblood">Query Blood </a></li>
+            <li><a href="#slogs">Search Logs</a></li>
+         </ul>
+         <div class="tab-content">
+            <div id="dblood" class="tab-pane fade in active">
+               <h3> Donate your blood here</h3>
+               <form class="form-horizontal col-sm-2" role="form">
+                  <div class="form-group">
+                     <label class="control-label" for="amount">Amount of Blood(lts):</label>
+                     <input type="amount" class="form-control" id="amount">
+                  </div>
+                  <div class="form-group">
+                     <label class="control-label"  for="name">Name of the donor:</label>
+                     <input type="text" class="form-control" id="name">
+                  </div>
+                  <button type="button" onclick="set()" class="btn btn-default">Save</button>
+               </form>
+            </div>
+            <div id="qblood" class="tab-pane fade">
+               <h3> Findout how much left</h3>
+               <form class="form-horizontal col-sm-2" role="form">
+                  <div class="form-group">
+                     <label class="control-label" for="query">Fetch the amount of blood left:</label>
+                     <button id="query" type="button" onclick="get()" class="btn btn-default">Fetch</button>
+                     <div id='queryres'></div>
+                  </div>
+               </form>
+            </div>
+         <div id="slogs" class="tab-pane fade">
+            Searchable 
+         </div>
+      </div>
+      </div>
+      <script>
+         $(document).ready(function(){
+             $(".nav-tabs a").click(function(){
+                 $(this).tab('show');
+             });
+             $('.nav-tabs a').on('shown.bs.tab', function(event){
+                 var x = $(event.target).text();         // active tab
+                 var y = $(event.relatedTarget).text();  // previous tab
+                 $(".act span").text(x);
+                 $(".prev span").text(y);
+             });
+         });
+      </script>
+   </body>
 </html>
