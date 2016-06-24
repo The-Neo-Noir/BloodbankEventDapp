@@ -1,0 +1,42 @@
+<!doctype>
+<html>
+<head><script src="deployment.js"></script>
+<script type="text/javascript" src="web3.js"></script>
+<script type='text/javascript'>
+
+var Web3 = require('web3');
+    var web3 = new Web3();
+    web3.setProvider(new web3.providers.HttpProvider("http://localhost:8545"));
+
+	web3.eth.defaultAccount = web3.eth.accounts[0];
+	var bloodbankContract = web3.eth.contract([{"constant":false,"inputs":[{"name":"amount","type":"uint256"}],"name":"addBlood","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"userName","type":"string"},{"name":"amount","type":"uint256"}],"name":"addBloodByUser","outputs":[],"type":"function"},{"constant":true,"inputs":[],"name":"queryBloodRemaining","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"inputs":[],"type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"time","type":"uint256"},{"indexed":true,"name":"donorName","type":"string"},{"indexed":false,"name":"amount","type":"uint256"}],"name":"BloodDonated","type":"event"}]).at('0x89c144aaf07dc9cbc579022e3e366e5cb3218443');
+function get() {
+	var param = document.getElementById('query').value;
+	var res = bloodbankContract.queryBloodRemaining();
+	document.getElementById('queryres').innerText = res;
+}
+
+function set() {
+	var key = document.getElementById('key').value;
+	var name = document.getElementById('name').value;
+	var res = bloodbankContract.addBloodByUser(name,key);
+}
+
+</script>
+</head>
+<body bgcolor='#E6E6FA'>
+	<h3>Sample Ratings</h3>
+<div>
+Store:<br/>
+	Amount in lts:<input type='number' id='key'><br/>
+	
+	Name :<input type='name' id='name'>
+	<button onclick='set()'>Save</button>
+</div>
+<div>
+Query:
+	<input value='get' type='button' id='query' onclick='get()' />
+	<div id='queryres'></div>
+</div>
+</body>
+</html>
