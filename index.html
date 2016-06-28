@@ -3,10 +3,8 @@
    <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
-      <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-      <style>
+      <link rel="stylesheet" href="css/bootstrap.min.css">
+	   <style>
          .tab-pane {
          border-left: 1px solid #ddd;
          border-right: 1px solid #ddd;
@@ -20,8 +18,14 @@
          margin-bottom: 0;
          }
       </style>
-      <script type="text/javascript" src="web3.js"></script>
+      <script src="js/jquery.min.js"></script>
+      <script src="js/bootstrap.min.js"></script>
+      <script type="text/javascript" src="js/web3.js"></script>
+	  <script type="text/javascript" src="js/bundle.js"></script>
+	 
+
       <script type='text/javascript'>
+		var table=null;
          var Web3 = require('web3');
              var web3 = new Web3();
              web3.setProvider(new web3.providers.HttpProvider("http://localhost:8545"));
@@ -35,10 +39,48 @@
          }
          
          function set() {
-         	var key = document.getElementById('key').value;
+         	var amount = document.getElementById('amount').value;
          	var name = document.getElementById('name').value;
-         	var res = bloodbankContract.addBloodByUser(name,key);
+         	var res = bloodbankContract.addBloodByUser(name,amount);
          }
+		 var fil =null;
+		 function search(){
+		 
+		 
+		 	var donorName = document.getElementById('donrName').value;
+			if(donorName=='' || donorName==undefined)
+				alert("Donor Name required");
+			
+		    fil = web3.eth.filter({fromBlock:0,toBlock:"latest",address:"0x89c144aaf07dc9cbc579022e3e366e5cb3218443",topics:[null,web3.sha3(donorName)]});
+			$('#searchTable tbody').empty();
+			fil.get(function(a,b){
+						if(b.length==0){
+							console.log("NO data found");
+							html = "<tr>";
+
+										var str = "<td colspan='3' align='center'>No Data found for give user: <b>"+donorName+"</b></td>";
+										
+									html = html + str + "</tr>";
+									table.append($(html));
+						}
+						for(i=0;i<b.length;i++){
+								console.log(b);
+								var dataDecoder=coder.decodeParams(["uint","uint"],b[i].data.replace("0x", ""));
+								 var gridRowCount = b.length;
+								//var html="";
+									html = "<tr>";
+
+										var str = "<td>Name</td>"+"<td>"+new Date(dataDecoder[0].toNumber()*1000)+"</td><td>"+dataDecoder[1]+"</td>";
+										
+									html = html + str + "</tr>";
+
+									table.append($(html));
+								
+						}
+					}
+				);
+			
+		 }
          
       </script>
    </head>
@@ -76,6 +118,18 @@
             </div>
          <div id="slogs" class="tab-pane fade">
             Searchable 
+			
+			  <form class="form-horizontal col-sm-2" role="form">
+				<div class="form-group">
+                     <label class="control-label" for="donrName">Name of the donor:</label>
+                     <input type="donrName" class="form-control" id="donrName">
+                  </div>
+                  <div class="form-group">
+                     <label class="control-label" for="query">Search :</label>
+                     <button id="query" type="button" onclick="search()" class="btn btn-default">Fetch</button>
+                     <div id='queryres'></div>
+                  </div>
+               </form>
          </div>
       </div>
       </div>
@@ -83,6 +137,7 @@
          $(document).ready(function(){
              $(".nav-tabs a").click(function(){
                  $(this).tab('show');
+				 
              });
              $('.nav-tabs a').on('shown.bs.tab', function(event){
                  var x = $(event.target).text();         // active tab
@@ -90,6 +145,37 @@
                  $(".act span").text(x);
                  $(".prev span").text(y);
              });
+			 
+
+        var tableDiv = $("<div class='table-responsive'>");
+
+        $('#slogs').append(tableDiv);
+
+        table = $("<table id='searchTable' class='table table-striped table-bordered table-hover table-condensed small'>");
+
+        tableDiv.append(table);
+
+        ///
+        /// Table head
+        ///
+        html = "<thead>" +
+               "    <tr>" +
+               "        <th><strong>Name</strong></th>" +
+               "        <th><strong>Time</strong></th>" +
+               "        <th><strong>Donated Amount</strong></th>" +
+               "     </tr>" +
+               "</thead>";
+
+        var tableHead = $(html);
+        table.append(tableHead);
+
+        ///
+        /// Table data
+        ///
+       
+			 
+			 
+			 
          });
       </script>
    </body>
